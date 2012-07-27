@@ -1,6 +1,12 @@
-*.class
+/bin/
 
-# Package Files #
+*.class
 *.jar
 *.war
 *.ear
+
+*~
+*.swp
+.\#*
+\#*\#
+
