@@ -44,6 +44,11 @@ public class Program
     {
 	final String cmd = args.length == 0 ? "" : args[0];
 	
+	if (Database.hasDriver())
+	{   System.err.println("Can not find PostgreSQL driver, have you installed postgresql-jdbc?");
+	    return;
+	}
+	
 	if (cmd.equals("init"))
 	    ;
 	else if (cmd.equals("ls"))

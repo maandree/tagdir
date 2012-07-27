@@ -1,9 +1,6 @@
 /bin/
 
 *.class
-*.jar
-*.war
-*.ear
 
 *~
 *.swp
