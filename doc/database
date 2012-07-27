@@ -1,0 +1,49 @@
+dir::	dir	: integer key
+
+file::	file	: integer key
+	dir	: integer key → dir.dir
+	name	: string
+
+tag::	tag	: integer key
+	name	: string
+
+table::	file	: integer key → file.file
+	dir	: integer key → dir.dir
+	tag	: integer key → tag.tag
+
+
+
+
+CREATE TABLE tagdir__dir (
+       dir SERIAL,
+       PRIMARY KEY (dir)
+);
+
+
+CREATE TABLE tagdir__file (
+       file SERIAL,
+       dir INTEGER NOT NULL,
+       name TEXT,
+       PRIMARY KEY (file, dir),
+       FOREIGN KEY (dir) REFERENCES tagdir__dir(dir)
+);
+
+
+CREATE TABLE tagdir__tag (
+       tag SERIAL NOT NULL,
+       name TEXT,
+       PRIMARY KEY (tag)
+);
+
+
+CREATE TABLE tagdir__table (
+       file INTEGER NOT NULL,
+       dir INTEGER NOT NULL,
+       tag INTEGER NOT NULL,
+       PRIMARY KEY (file, dir, tag),
+       FOREIGN KEY (file) REFERENCES tagdir__file(file),
+       FOREIGN KEY (dir) REFERENCES tagdir__dir(dir),
+       FOREIGN KEY (tag) REFERENCES tagdir__tag(tag)
+);
+
+

@@ -62,6 +62,8 @@ public class Program
 		;
 	else if (cmd.equals("rm"))
 	    ;
+	else if (cmd.equals("mv"))
+	    ;
 	else if (cmd.equals("show"))
 	    ;
 	else if (cmd.equals("also"))
@@ -81,7 +83,8 @@ public class Program
 	    System.out.println("   or:  tagdir all                     Show all files");
 	    System.out.println("   or:  tagdir tags                    List all available tags");
 	    System.out.println("   or:  tagdir tags FILE...            List tags for file");
-	    System.out.println("   or:  tagdir rm FILE...              Remove file from system");
+	    System.out.println("   or:  tagdir rm FILE...              Remove file from the system");
+	    System.out.println("   or:  tagdir mv SRC DEST             Move a file int the system");
 	    System.out.println("   or:  tagdir show A - N + M          Show file satisifing A - N + M, hide rest");
 	    System.out.println("   or:  tagdir also A - N + M          Show file satisifing A - N + M");
 	    System.out.println("   or:  tagdir hide A - N + M          Hide file satisifing A - N + M");
