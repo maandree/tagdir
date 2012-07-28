@@ -6,7 +6,8 @@ N:  Set of tags from whihc none may be used
 tagdir init  --------------------  Initialise folder
 
        INSERT INTO  tagdir__dir (name)
-       VALUES       (%pwd);
+       VALUES       (%pwd)
+       RETURNING    dir;
 
 
 tagdir ls  ----------------------  List all available files, and their tags
@@ -23,10 +24,7 @@ tagdir all  ---------------------  Show all files
 
        SELECT  name
        FROM    tagdir__file
-               NATURAL JOIN ( SELECT  DISTINCT file
-                              FROM    tagdir__table
-                              WHERE   dir = %dir
-                            ) AS dummy;
+       WHERE   dir = %dir;
 
 
 tagdir tags  --------------------  List all available tags
@@ -47,7 +45,7 @@ tagdir tags FILE...  ------------  List tags for file
                  JOIN  tagdir__file  AS file   USING  file
                  JOIN  tagdir__tag   AS tag    USING  tag
        WHERE     table.dir = %dir
-            AND  table.file IN %files
+            AND  table.file IN (%files)
        ORDER BY  tag.name, file.name;
 
 
@@ -56,12 +54,12 @@ tagdir rm FILE...  --------------  Remove file from the system
        WITH  del AS ( DELETE FROM  tagdir__file
                       WHERE        dir = %dir
                               AND  name IN (%files)
-                      RETURNING    file, name;
+                      RETURNING    file, name
                     )
        DELETE FROM  tagdir__table
        WHERE        dir = %dir
                AND  file IN (SELECT file FROM del)
-       RETURN       del.name;
+       RETURNING    del.name;
 
 
 tagdir untag FILE...  -----------  Remove all tags from file
@@ -80,7 +78,8 @@ tagdir mv SRC DEST  -------------  Move a file int the system
 
        UPDATE  tagdir__file
        SET     name = %dest
-       WHERE   name = %src;
+       WHERE   name = %src
+          AND  dir = %dir;
 
 
 tagdir show A - N + M  ----------  Show file satisifing A - N + M, hide rest
@@ -98,7 +97,7 @@ tagdir hide A - N + M  ----------  Hide file satisifing A - N + M
              m AS ( SELECT  tag
                     FROM    tagdir__tag
                     WHERE   name IN (%ms)
-                  ),
+                  )
        SELECT  name
        FROM    tagdir__file AS f
        WHERE   dir = %dir
@@ -121,20 +120,20 @@ tagdir hide A - N + M  ----------  Hide file satisifing A - N + M
                    WHERE   t.file = f.file
                       AND  t.dir = %dir
                       AND  t.tag IN m
-                 ) = %len(m)
+                 ) = %len(ms)
                );
 
 
 tagdir tag FILE... = TAG...  ----  Set tags for file
 
-       %missing := (%tags) EXCEPT (SELECT name FROM tagdir__tag);
+       %missing :=  (%tags) EXCEPT (SELECT name FROM tagdir__tag);
 
        INSERT INTO  tagdir__tag (name)
        VALUES       (%missing);    -- multiple
 
-       %tags :=  SELECT  tag
-                 FROM    tagdir__tag
-                 WHERE   name IN (%tags);
+       %itags :=  SELECT  tag
+                  FROM    tagdir__tag
+                  WHERE   name IN (%tags);
 
        DELETE FROM  tagdir__table
        WHERE        dir = %dir
@@ -145,22 +144,22 @@ tagdir tag FILE... = TAG...  ----  Set tags for file
                     );
 
        INSERT INTO  tagdir__table (file, dir, tag)
-       VALUES       (%files, %dir, %tags);    -- multiple
+       VALUES       (%files, %dir, %itags);    -- multiple
 
 
 tagdir tag FILE... + TAG...  ----  Add tag to file
 
-       %missing := (%tags) EXCEPT (SELECT name FROM tagdir__tag);
+       %missing :=  (%tags) EXCEPT (SELECT name FROM tagdir__tag);
 
        INSERT INTO  tagdir__tag (name)
        VALUES       (%missing);    -- multiple
 
-       %tags :=  SELECT  tag
-                 FROM    tagdir__tag
-                 WHERE   name IN (%tags);
+       %itags :=  SELECT  tag
+                  FROM    tagdir__tag
+                  WHERE   name IN (%tags);
 
        INSERT INTO  tagdir__table (file, dir, tag)
-       VALUES       (%files, %dir, %tags);    -- multiple
+       VALUES       (%files, %dir, %itags);    -- multiple
 
 
 tagdir tag FILE... - TAG...  ----  Remove tag from file
