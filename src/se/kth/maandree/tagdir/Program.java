@@ -88,7 +88,7 @@ public class Program
 	    System.out.println("   or:  tagdir show A - N + M          Show file satisifing A - N + M, hide rest");
 	    System.out.println("   or:  tagdir also A - N + M          Show file satisifing A - N + M");
 	    System.out.println("   or:  tagdir hide A - N + M          Hide file satisifing A - N + M");
-	    System.out.println("   or:  tagdir untag                   Remove all tags from file");
+	    System.out.println("   or:  tagdir untag FILE...           Remove all tags from file");
 	    System.out.println("   or:  tagdir tag FILE... = TAG...    Set tags for file");
 	    System.out.println("   or:  tagdir tag FILE... + TAG...    Add tag to file");
 	    System.out.println("   or:  tagdir tag FILE... - TAG...    Remove tag from file");

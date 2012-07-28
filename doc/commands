@@ -1,0 +1,190 @@
+A:  Set of tags from which one must be used
+M:  Set of tags from which all must be used
+N:  Set of tags from whihc none may be used
+
+
+tagdir init  --------------------  Initialise folder
+
+       INSERT INTO  tagdir__dir (name)
+       VALUES       (%pwd);
+
+
+tagdir ls  ----------------------  List all available files, and their tags
+
+       SELECT    file.name, tag.name
+       FROM            tagdir__table AS table
+                 JOIN  tagdir__file  AS file   USING  file
+                 JOIN  tagdir__tag   AS tag    USING  tag
+       WHERE     table.dir = %dir
+       ORDER BY  tag.name, file.name;
+
+
+tagdir all  ---------------------  Show all files
+
+       SELECT  name
+       FROM    tagdir__file
+               NATURAL JOIN ( SELECT  DISTINCT file
+                              FROM    tagdir__table
+                              WHERE   dir = %dir
+                            ) AS dummy;
+
+
+tagdir tags  --------------------  List all available tags
+
+       SELECT    name
+       FROM      tagdir__tag
+                 NATURAL JOIN ( SELECT  DISTINCT tag
+                                FROM    tagdir__table
+                                WHERE   dir = %dir
+                              ) AS dummy
+       ORDER BY  name;
+
+
+tagdir tags FILE...  ------------  List tags for file
+
+       SELECT    file.name, tag.name
+       FROM            tagdir__table AS table
+                 JOIN  tagdir__file  AS file   USING  file
+                 JOIN  tagdir__tag   AS tag    USING  tag
+       WHERE     table.dir = %dir
+            AND  table.file IN %files
+       ORDER BY  tag.name, file.name;
+
+
+tagdir rm FILE...  --------------  Remove file from the system
+
+       WITH  del AS ( DELETE FROM  tagdir__file
+                      WHERE        dir = %dir
+                              AND  name IN (%files)
+                      RETURNING    file, name;
+                    )
+       DELETE FROM  tagdir__table
+       WHERE        dir = %dir
+               AND  file IN (SELECT file FROM del)
+       RETURN       del.name;
+
+
+tagdir untag FILE...  -----------  Remove all tags from file
+
+       DELETE FROM  tagdir__table
+       WHERE        dir = %dir
+               AND  file IN
+                    ( DELETE FROM  tagdir__file
+                      WHERE        dir = %dir
+                              AND  name IN (%files)
+                      RETURNING    file
+                    );
+
+
+tagdir mv SRC DEST  -------------  Move a file int the system
+
+       UPDATE  tagdir__file
+       SET     name = %dest
+       WHERE   name = %src;
+
+
+tagdir show A - N + M  ----------  Show file satisifing A - N + M, hide rest
+tagdir also A - N + M  ----------  Show file satisifing A - N + M
+tagdir hide A - N + M  ----------  Hide file satisifing A - N + M
+
+       WITH  a AS ( SELECT  tag
+                    FROM    tagdir__tag
+                    WHERE   name IN (%as)
+                  ),
+             n AS ( SELECT  tag
+                    FROM    tagdir__tag
+                    WHERE   name IN (%ns)
+                  ),
+             m AS ( SELECT  tag
+                    FROM    tagdir__tag
+                    WHERE   name IN (%ms)
+                  ),
+       SELECT  name
+       FROM    tagdir__file AS f
+       WHERE   dir = %dir
+          AND  ( ( SELECT  count(*)
+                   FROM    tagdir__table AS t
+                   WHERE   t.file = f.file
+                      AND  t.dir = %dir
+                      AND  t.tag IN a
+                 ) > 1
+               )
+          AND  ( ( SELECT  count(*)
+                   FROM    tagdir__table AS t
+                   WHERE   t.file = f.file
+                      AND  t.dir = %dir
+                      AND  t.tag IN n
+                 ) = 0
+               )
+          AND  ( ( SELECT  count(*)
+                   FROM    tagdir__table AS t
+                   WHERE   t.file = f.file
+                      AND  t.dir = %dir
+                      AND  t.tag IN m
+                 ) = %len(m)
+               );
+
+
+tagdir tag FILE... = TAG...  ----  Set tags for file
+
+       %missing := (%tags) EXCEPT (SELECT name FROM tagdir__tag);
+
+       INSERT INTO  tagdir__tag (name)
+       VALUES       (%missing);    -- multiple
+
+       %tags :=  SELECT  tag
+                 FROM    tagdir__tag
+                 WHERE   name IN (%tags);
+
+       DELETE FROM  tagdir__table
+       WHERE        dir = %dir
+               AND  file IN
+                    ( SELECT FROM  tagdir__file
+                      WHERE        dir = %dir
+                              AND  name IN (%files)
+                    );
+
+       INSERT INTO  tagdir__table (file, dir, tag)
+       VALUES       (%files, %dir, %tags);    -- multiple
+
+
+tagdir tag FILE... + TAG...  ----  Add tag to file
+
+       %missing := (%tags) EXCEPT (SELECT name FROM tagdir__tag);
+
+       INSERT INTO  tagdir__tag (name)
+       VALUES       (%missing);    -- multiple
+
+       %tags :=  SELECT  tag
+                 FROM    tagdir__tag
+                 WHERE   name IN (%tags);
+
+       INSERT INTO  tagdir__table (file, dir, tag)
+       VALUES       (%files, %dir, %tags);    -- multiple
+
+
+tagdir tag FILE... - TAG...  ----  Remove tag from file
+
+       WITH  tags AS ( SELECT  tag
+                       FROM    tagdir__tag
+                       WHERE   name IN (%tags)
+                     )
+       DELETE FROM  tagdir__table
+       WHERE        dir = %dir
+               AND  file IN
+                    ( SELECT FROM  tagdir__file
+                      WHERE        dir = %dir
+                              AND  name IN (%files)
+                    )
+               AND  tag IN tags;
+
+
+tagdir export  ------------------  Print all system data
+
+       SELECT  file.name, dir.name, tag.name
+       FROM          tagdir__table
+               JOIN  tagdir__file  AS file  USING  files
+               JOIN  tagdir__dir   AS dir   USING  dir
+               JOIN  tagdir__tag   AS tag   USING  tag
+       WHERE   dir = %dir;
+

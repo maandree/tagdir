@@ -1,4 +1,5 @@
 dir::	dir	: integer key
+	name	: string  (for database examinors)
 
 file::	file	: integer key
 	dir	: integer key → dir.dir
@@ -16,6 +17,7 @@ table::	file	: integer key → file.file
 
 CREATE TABLE tagdir__dir (
        dir SERIAL,
+       name TEXT,
        PRIMARY KEY (dir)
 );
 
