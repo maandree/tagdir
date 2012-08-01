@@ -3,10 +3,10 @@ M:  Set of tags from which all must be used
 N:  Set of tags from whihc none may be used
 
 
-tagdir init  --------------------  Initialise folder
+tagdir init  --------------------  Initialise the directory for use with the program
 
        INSERT INTO  tagdir__dir (name)
-       VALUES       (%pwd)
+       VALUES       (%cwd)
        RETURNING    dir;
 
 

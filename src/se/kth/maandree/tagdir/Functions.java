@@ -35,6 +35,12 @@ public class Functions
     
     
     
+    /**
+     * Make a list out of the first column in a matrix
+     * 
+     * @param   matrix  The matrix
+     * @return          The first column in the matrix
+     */
     private static String[] toList(final String[][] matrix)
     {
 	int n;
@@ -45,16 +51,34 @@ public class Functions
     }
     
     
-    public static int init(final String password, final String pwd) throws SQLException
+    /**
+     * Initialise the directory for use with the program
+     * 
+     * @param   password  The user's password for the database
+     * @param   cwd       The currect working directory
+     * @return            The ID assigned to the currect working directory
+     * 
+     * @throws  SQLException  On database error
+     */
+    public static int init(final String password, final String cwd) throws SQLException
     {
 	final String COMMAND = " INSERT INTO  tagdir__dir (name)"
-	                     + " VALUES       (%pwd)"
+	                     + " VALUES       (%cwd)"
 	                     + " RETURNING    dir;";
 	
-	return Integer.parseInt(Database.query(COMMAND.replace("%pwd", "?"), password, pwd)[0][0]);
+	return Integer.parseInt(Database.query(COMMAND.replace("%cwd", System.getProperty("user.dir")), password, pwd)[0][0]);
     }
     
     
+    /**
+     * List all available files, and their tags
+     * 
+     * @param   password  The user's password for the database
+     * @param   dir       The currect working directory's ID in the database
+     * @return            List of file–tag pairs (one file, one tag, per pair), sorted by (file, tag)
+     * 
+     * @throws  SQLException  On database error
+     */
     public static String[][] ls(final String password, final int dir) throws SQLException
     {
 	final String COMMAND = " SELECT    file.name, tag.name"
@@ -68,6 +92,15 @@ public class Functions
     }
     
     
+    /**
+     * List all files
+     * 
+     * @param   password  The user's password for the database
+     * @param   dir       The currect working directory's ID in the database
+     * @return            Array of all files
+     * 
+     * @throws  SQLException  On database error
+     */
     public static String[] all(final String password, final int dir) throws SQLException
     {
 	final String COMMAND = " SELECT  name"
@@ -78,6 +111,15 @@ public class Functions
     }
     
     
+    /**
+     * List all available tags
+     * 
+     * @param   password  The user's password for the database
+     * @param   dir       The currect working directory's ID in the database
+     * @return            Array of all tags
+     * 
+     * @throws  SQLException  On database error
+     */
     public static String[] tags(final String password, final int dir) throws SQLException
     {
 	final String COMMAND = " SELECT    name"
@@ -92,6 +134,16 @@ public class Functions
     }
     
     
+    /**
+     * List tags for file
+     * 
+     * @param   password  The user's password for the database
+     * @param   dir       The currect working directory's ID in the database
+     * @param   files     The files of interest
+     * @return            List of file–tag pairs (one file, one tag, per pair), sorted by (file, tag)
+     * 
+     * @throws  SQLException  On database error
+     */
     public static String[][] tags(final String password, final int dir, final String[] files) throws SQLException
     {
 	final String COMMAND = " SELECT    file.name, tag.name"
@@ -114,6 +166,16 @@ public class Functions
     }
     
     
+    /**
+     * Remove file from the system
+     * 
+     * @param   password  The user's password for the database
+     * @param   dir       The currect working directory's ID in the database
+     * @param   files     The files of interest
+     * @return            Array of the newly removed files
+     * 
+     * @throws  SQLException  On database error
+     */
     public static String[] rm(final String password, final int dir, final String[] files) throws SQLException
     {
 	final String COMMAND = " WITH  del AS ( DELETE FROM  tagdir__file"
@@ -138,6 +200,15 @@ public class Functions
     }
     
     
+    /**
+     * Remove all tags from file
+     * 
+     * @param  password  The user's password for the database
+     * @param  dir       The currect working directory's ID in the database
+     * @param  files     The files of interest
+     * 
+     * @throws  SQLException  On database error
+     */
     public static void untag(final String password, final int dir, final String[] files) throws SQLException
     {
 	final String COMMAND = " DELETE FROM  tagdir__table"
@@ -161,6 +232,16 @@ public class Functions
     }
     
     
+    /**
+     * Move a file int the system
+     * 
+     * @param  password  The user's password for the database
+     * @param  dir       The currect working directory's ID in the database
+     * @param  src       The file to move
+     * @param  dest      The new file name
+     * 
+     * @throws  SQLException  On database error
+     */
     public static void mv(final String password, final int dir, final String src, final String dest) throws SQLException
     {
 	final String COMMAND = " UPDATE  tagdir__file"
@@ -180,19 +261,19 @@ public class Functions
     }
     
     
-    public static String[] show(final String password, final int dir, final String[] as, final String[] ns, final String[] ms)
-    {
-	return hide(password, dir, as, ns, ms);
-    }
-    
-    
-    public static String[] also(final String password, final int dir, final String[] as, final String[] ns, final String[] ms)
-    {
-	return hide(password, dir, as, ns, ms);
-    }
-    
-    
-    public static String[] hide(final String password, final int dir, final String[] as, final String[] ns, final String[] ms)
+    /**
+     * List files depending on tags
+     * 
+     * @param   password  The user's password for the database
+     * @param   dir       The currect working directory's ID in the database
+     * @param   as        Set of tags from which one must be used
+     * @param   ns        Set of tags from whihc none may be used
+     * @param   ms        Set of tags from which all must be used
+     * @return            Array of the found files
+     * 
+     * @throws  SQLException  On database error
+     */
+    public static String[] tagFilter(final String password, final int dir, final String[] as, final String[] ns, final String[] ms)
     {
 	final String COMMAND = " WITH  a AS ( SELECT  tag"
 	                     + "              FROM    tagdir__tag"
@@ -272,7 +353,16 @@ public class Functions
     }
     
     
-    public static String[][] export(final String password, final int dir, final String[] files) throws SQLException
+    /**
+     * Export all data for the directory
+     * 
+     * @param   password  The user's password for the database
+     * @param   dir       The currect working directory's ID in the database
+     * @return            
+     * 
+     * @throws  SQLException  On database error
+     */
+    public static String[][] export(final String password, final int dir) throws SQLException
     {
 	final String COMMAND = " SELECT  file.name, dir.name, tag.name"
 	                     + " FROM          tagdir__table"
@@ -285,7 +375,17 @@ public class Functions
     }
     
     
-    public static void tagset(final String password, final int dir, final String[] files, final String[] tags) throws SQLException
+    /**
+     * Set tags for file
+     * 
+     * @param  password  The user's password for the database
+     * @param  dir       The currect working directory's ID in the database
+     * @param  files     The files of interest
+     * @param  tag       The tags
+     * 
+     * @throws  SQLException  On database error
+     */
+    public static void tagSet(final String password, final int dir, final String[] files, final String[] tags) throws SQLException
     {
 	final String COMMAND_0 = "(%tags) EXCEPT (SELECT name FROM tagdir__tag);";
 	
@@ -343,7 +443,17 @@ public class Functions
     }
     
     
-    public static void tagadd(final String password, final int dir, final String[] files, final String[] tags) throws SQLException
+    /**
+     * Add tag to file
+     * 
+     * @param  password  The user's password for the database
+     * @param  dir       The currect working directory's ID in the database
+     * @param  files     The files of interest
+     * @param  tag       The tags
+     * 
+     * @throws  SQLException  On database error
+     */
+    public static void tagAdd(final String password, final int dir, final String[] files, final String[] tags) throws SQLException
     {
 	final String COMMAND_0 = "(%tags) EXCEPT (SELECT name FROM tagdir__tag);";
 	
@@ -391,7 +501,17 @@ public class Functions
     }
     
     
-    public static void tagdel(final String password, final int dir, final String[] files, final String[] tags) throws SQLException
+    /**
+     * Remove tag from file
+     * 
+     * @param  password  The user's password for the database
+     * @param  dir       The currect working directory's ID in the database
+     * @param  files     The files of interest
+     * @param  tag       The tags
+     * 
+     * @throws  SQLException  On database error
+     */
+    public static void tagRemove(final String password, final int dir, final String[] files, final String[] tags) throws SQLException
     {
 	final String COMMAND = " WITH  tags AS ( SELECT  tag"
 	                     + "                 FROM    tagdir__tag"
