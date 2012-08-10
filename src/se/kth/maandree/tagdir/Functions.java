@@ -52,6 +52,52 @@ public class Functions
     
     
     /**
+     * Creates the database
+     * 
+     * @param  password  The user's password for the database
+     * 
+     * @throws  SQLException  On database error
+     */
+    public static void install(final String password) throws SQLException
+    {
+	final String COMMNAD_0 = "CREATE TABLE tagdir__dir ("
+	                       + "    dir  SERIAL,"
+	                       + "    name TEXT,"
+	                       + "    PRIMARY KEY (dir)"
+	                       + ");";
+	
+	final String COMMNAD_1 = "CREATE TABLE tagdir__file ("
+	                       + "    file SERIAL,"
+	                       + "    dir  INTEGER NOT NULL,"
+	                       + "    name TEXT,"
+	                       + "    PRIMARY KEY (file, dir),"
+	                       + "    FOREIGN KEY (dir) REFERENCES tagdir__dir(dir)"
+	                       + ");";
+	
+	final String COMMNAD_2 = "CREATE TABLE tagdir__tag ("
+	                       + "    tag SERIAL NOT NULL,"
+	                       + "    name TEXT,"
+	                       + "    PRIMARY KEY (tag)"
+	                       + ");";
+	
+	final String COMMNAD_3 = "CREATE TABLE tagdir__table ("
+	                       + "    file INTEGER NOT NULL,"
+	                       + "    dir  INTEGER NOT NULL,"
+	                       + "    tag  INTEGER NOT NULL,"
+	                       + "    PRIMARY KEY (file, dir, tag),"
+	                       + "    FOREIGN KEY (file) REFERENCES tagdir__file(file),"
+	                       + "    FOREIGN KEY (dir)  REFERENCES tagdir__dir(dir),"
+	                       + "    FOREIGN KEY (tag ) REFERENCES tagdir__tag(tag)"
+	                       + ");";
+	
+	Database.update(COMMAND_0, password);
+	Database.update(COMMAND_1, password);
+	Database.update(COMMAND_2, password);
+	Database.update(COMMAND_3, password);
+    }
+    
+    
+    /**
      * Initialise the directory for use with the program
      * 
      * @param   password  The user's password for the database
