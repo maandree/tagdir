@@ -120,7 +120,7 @@ public class Database
 	    rsmd = rs.getMetaData();
 	    numColumns = rsmd.getColumnCount();
 	    
-	    final ArrayList<String[]> rows = new ArrayList<String[]>();
+	    final ArrayDeque<String[]> rows = new ArrayDeque<String[]>();
 	    String[] row = new String[numColumns];
 	    for (int i = 0; i < numColumns;)
 		row[i] = rsmd.getColumnName(++i);
@@ -130,12 +130,12 @@ public class Database
 	    {   row = new String[numColumns];
 		for (int i = 0; i < numColumns;)
 		    row[i] = rs.getString(++i);
-		rows.add(row);
+		rows.offerLast(row);
 	    }
 	    
 	    final String[][] rc = new String[rows.size()][];
 	    int i = 0;
-	    while ((row = rows.poll()) != null)
+	    while ((row = rows.pollFirst()) != null)
 		rc[i++] = row;
 	    
 	    return rc;

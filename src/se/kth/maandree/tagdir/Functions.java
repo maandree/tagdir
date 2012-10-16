@@ -17,6 +17,8 @@
  */
 package se.kth.maandree.tagdir;
 
+import java.sql.*;
+
 
 /**
  * Database functions
@@ -60,13 +62,13 @@ public class Functions
      */
     public static void install(final String password) throws SQLException
     {
-	final String COMMNAD_0 = "CREATE TABLE tagdir__dir ("
+	final String COMMAND_0 = "CREATE TABLE tagdir__dir ("
 	                       + "    dir  SERIAL,"
 	                       + "    name TEXT,"
 	                       + "    PRIMARY KEY (dir)"
 	                       + ");";
 	
-	final String COMMNAD_1 = "CREATE TABLE tagdir__file ("
+	final String COMMAND_1 = "CREATE TABLE tagdir__file ("
 	                       + "    file SERIAL,"
 	                       + "    dir  INTEGER NOT NULL,"
 	                       + "    name TEXT,"
@@ -74,13 +76,13 @@ public class Functions
 	                       + "    FOREIGN KEY (dir) REFERENCES tagdir__dir(dir)"
 	                       + ");";
 	
-	final String COMMNAD_2 = "CREATE TABLE tagdir__tag ("
+	final String COMMAND_2 = "CREATE TABLE tagdir__tag ("
 	                       + "    tag SERIAL NOT NULL,"
 	                       + "    name TEXT,"
 	                       + "    PRIMARY KEY (tag)"
 	                       + ");";
 	
-	final String COMMNAD_3 = "CREATE TABLE tagdir__table ("
+	final String COMMAND_3 = "CREATE TABLE tagdir__table ("
 	                       + "    file INTEGER NOT NULL,"
 	                       + "    dir  INTEGER NOT NULL,"
 	                       + "    tag  INTEGER NOT NULL,"
@@ -112,7 +114,7 @@ public class Functions
 	                     + " VALUES       (%cwd)"
 	                     + " RETURNING    dir;";
 	
-	return Integer.parseInt(Database.query(COMMAND.replace("%cwd", System.getProperty("user.dir")), password, pwd)[0][0]);
+	return Integer.parseInt(Database.query(COMMAND.replace("%cwd", System.getProperty("user.dir")), password, cwd)[0][0]);
     }
     
     
@@ -295,14 +297,6 @@ public class Functions
 	                     + " WHERE   name = %src"
 	                     + "    AND  dir = %dir;";
 	
-	final char[] qs = new char[files.length * 3];
-	for (int i = 0, n = files.length; i < n; i++)
-	{
-	    qs[i * 3]     = '?';
-	    qs[i * 3 + 1] = ',';
-	    qs[i * 3 + 2] = ' ';
-	}
-	
 	Database.update(COMMAND.replace("%dir", Integer.toString(dir)).replace("%dest", "?").replace("%src", "?"), password, dest, src);
     }
     
@@ -319,7 +313,7 @@ public class Functions
      * 
      * @throws  SQLException  On database error
      */
-    public static String[] tagFilter(final String password, final int dir, final String[] as, final String[] ns, final String[] ms)
+    public static String[] tagFilter(final String password, final int dir, final String[] as, final String[] ns, final String[] ms) throws SQLException
     {
 	final String COMMAND = " WITH  a AS ( SELECT  tag"
 	                     + "              FROM    tagdir__tag"
@@ -390,12 +384,17 @@ public class Functions
 	final String qns = new String(qa, 0, qn.length);
 	final String qms = new String(qa, 0, qm.length);
 	
-	Database.update(COMMAND.replace("%dir", Integer.toString(dir))
-			       .replace("%len(ms)", Integer.toString(ms.length))
-			       .replace("%as", qas)
-			       .replace("%ns", qns)
-			       .replace("%ms", qms),
-			password, params);
+	String[][] result = Database.query(COMMAND.replace("%dir", Integer.toString(dir))
+					   .replace("%len(ms)", Integer.toString(ms.length))
+					   .replace("%as", qas)
+					   .replace("%ns", qns)
+					   .replace("%ms", qms),
+					   password, params);
+	
+	String[] rc = new String[result.length];
+	for (int i = 0, n = rc.length; i < n; i++)
+	    rc[i] = result[i][0];
+	return rc;
     }
     
     

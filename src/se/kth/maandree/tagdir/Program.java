@@ -17,6 +17,8 @@
  */
 package se.kth.maandree.tagdir;
 
+import java.sql.*;
+
 
 /**
  * This is the main class of the program
