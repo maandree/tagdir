@@ -52,21 +52,21 @@ public class Program
 	    
 	    if (Database.hasDriver())
 		System.err.println("tagdir: error: Cannot find PostgreSQL driver, have you installed postgresql-jdbc?");
-	    else if ((args.length == 1) && cmd.equals("install"))  ; // Action.install();
-	    else if ((args.length == 1) && cmd.equals("init"))     ; // Action.init();
-	    else if ((args.length == 1) && cmd.equals("ls"))       ; // Action.ls();
-	    else if ((args.length == 1) && cmd.equals("all"))      ; // Action.all();
-	    else if ((args.length == 1) && cmd.equals("tags"))     ; // Action.tags();
-	    else if ((args.length >  1) && cmd.equals("tags"))     ; // Action.tags(params);
-	    else if ((args.length >  1) && cmd.equals("rm"))       ; // Action.rm(params);
-	    else if ((args.length == 3) && cmd.equals("mv"))       ; // Action.mv(args[1], args[2]);
-	    else if ((args.length >  1) && cmd.equals("show"))     ; // Action.show(getA(params), getN(params), getM(params));
-	    else if ((args.length >  1) && cmd.equals("also"))     ; // Action.also(getA(params), getN(params), getM(params));
-	    else if ((args.length >  1) && cmd.equals("hide"))     ; // Action.hide(getA(params), getN(params), getM(params));
-	    else if ((args.length >  1) && cmd.equals("untag"))    ; // Action.untag(params);
-	    else if ((args.length >  3) && cmd.equals("tag"))      ; // Action.tag(params);
-	    else if ((args.length == 2) && cmd.equals("export"))   ; // Action.export(args[1]);
-	    else if ((args.length == 2) && cmd.equals("import"))   ; // Action.import(args[1]);
+	    else if ((args.length == 1) && cmd.equals("install"))  Actions.install();
+	    else if ((args.length == 1) && cmd.equals("init"))     Actions.init();
+	    else if ((args.length == 1) && cmd.equals("ls"))       Actions.ls();
+	    else if ((args.length == 1) && cmd.equals("all"))      Actions.all();
+	    else if ((args.length == 1) && cmd.equals("tags"))     Actions.tags();
+	    else if ((args.length >  1) && cmd.equals("tags"))     Actions.tags(params);
+	    else if ((args.length >  1) && cmd.equals("rm"))       Actions.rm(params);
+	    else if ((args.length == 3) && cmd.equals("mv"))       Actions.mv(args[1], args[2]);
+	    else if ((args.length >  1) && cmd.equals("show"))     Actions.show(getA(params), getN(params), getM(params));
+	    else if ((args.length >  1) && cmd.equals("also"))     Actions.also(getA(params), getN(params), getM(params));
+	    else if ((args.length >  1) && cmd.equals("hide"))     Actions.hide(getA(params), getN(params), getM(params));
+	    else if ((args.length >  1) && cmd.equals("untag"))    Actions.untag(params);
+	    else if ((args.length >  3) && cmd.equals("tag"))      Actions.tag(params);
+	    else if ((args.length == 2) && cmd.equals("export"))   Actions.export();
+	    else if ((args.length == 2) && cmd.equals("import"))   Actions.importSave();
 	    else
 	    {   System.out.println("tagdir — Tag files to add and remove the from directories");
 		System.out.println();

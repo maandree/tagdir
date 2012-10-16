@@ -384,17 +384,14 @@ public class Functions
 	final String qns = new String(qa, 0, qn.length);
 	final String qms = new String(qa, 0, qm.length);
 	
-	String[][] result = Database.query(COMMAND.replace("%dir", Integer.toString(dir))
-					   .replace("%len(ms)", Integer.toString(ms.length))
-					   .replace("%as", qas)
-					   .replace("%ns", qns)
-					   .replace("%ms", qms),
-					   password, params);
+	String[][] rc = Database.query(COMMAND.replace("%dir", Integer.toString(dir))
+				       .replace("%len(ms)", Integer.toString(ms.length))
+				       .replace("%as", qas)
+				       .replace("%ns", qns)
+				       .replace("%ms", qms),
+				       password, params);
 	
-	String[] rc = new String[result.length];
-	for (int i = 0, n = rc.length; i < n; i++)
-	    rc[i] = result[i][0];
-	return rc;
+	return toList(rc);
     }
     
     
@@ -403,7 +400,7 @@ public class Functions
      * 
      * @param   password  The user's password for the database
      * @param   dir       The currect working directory's ID in the database
-     * @return            
+     * @return            Rows of (file name, dir name, tag nmae) tuples
      * 
      * @throws  SQLException  On database error
      */
