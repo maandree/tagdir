@@ -111,8 +111,7 @@ public class Database
 	int numColumns = 0;
 	
 	try
-	{
-	    conn = DriverManager.getConnection(CONNECTION, SQL_USERNAME, password);
+	{   conn = DriverManager.getConnection(CONNECTION, SQL_USERNAME, password);
 	    pstmt = conn.prepareStatement(query);
 	    for (int i = 0, n = strings.length; i < n; i++)
 		pstmt.setString(i + 1, strings[i]);
@@ -169,8 +168,7 @@ public class Database
 	PreparedStatement pstmt = null;
 	
 	try
-	{
-	    conn = DriverManager.getConnection(CONNECTION, SQL_USERNAME, password);
+	{   conn = DriverManager.getConnection(CONNECTION, SQL_USERNAME, password);
 	    
 	    pstmt = conn.prepareStatement(update);
 	    for (int i = 0, n = strings.length; i < n; i++)

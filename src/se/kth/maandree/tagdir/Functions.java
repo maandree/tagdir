@@ -238,8 +238,7 @@ public class Functions
 	
 	final char[] qs = new char[files.length * 3];
 	for (int i = 0, n = files.length; i < n; i++)
-	{
-	    qs[i * 3]     = '?';
+	{   qs[i * 3]     = '?';
 	    qs[i * 3 + 1] = ',';
 	    qs[i * 3 + 2] = ' ';
 	}
@@ -270,8 +269,7 @@ public class Functions
 	
 	final char[] qs = new char[files.length * 3];
 	for (int i = 0, n = files.length; i < n; i++)
-	{
-	    qs[i * 3]     = '?';
+	{   qs[i * 3]     = '?';
 	    qs[i * 3 + 1] = ',';
 	    qs[i * 3 + 2] = ' ';
 	}
@@ -357,24 +355,21 @@ public class Functions
 	
 	final char[] qa = new char[as.length * 3];
 	for (int i = 0, n = as.length; i < n; i++)
-	{
-	    qa[i * 3]     = '?';
+	{   qa[i * 3]     = '?';
 	    qa[i * 3 + 1] = ',';
 	    qa[i * 3 + 2] = ' ';
 	    params[ptr++] = as[i];
 	}
 	final char[] qn = new char[ns.length * 3];
 	for (int i = 0, n = ns.length; i < n; i++)
-	{
-	    qn[i * 3]     = '?';
+	{   qn[i * 3]     = '?';
 	    qn[i * 3 + 1] = ',';
 	    qn[i * 3 + 2] = ' ';
 	    params[ptr++] = ns[i];
 	}
 	final char[] qm = new char[ms.length * 3];
 	for (int i = 0, n = ms.length; i < n; i++)
-	{
-	    qm[i * 3]     = '?';
+	{   qm[i * 3]     = '?';
 	    qm[i * 3 + 1] = ',';
 	    qm[i * 3 + 2] = ' ';
 	    params[ptr++] = ms[i];
@@ -449,15 +444,13 @@ public class Functions
 	
 	final char[] qt = new char[tags.length * 3];
 	for (int i = 0, n = tags.length; i < n; i++)
-	{
-	    qt[i * 3]     = '?';
+	{   qt[i * 3]     = '?';
 	    qt[i * 3 + 1] = ',';
 	    qt[i * 3 + 2] = ' ';
 	}
 	final char[] qf = new char[files.length * 3];
 	for (int i = 0, n = files.length; i < n; i++)
-	{
-	    qf[i * 3]     = '?';
+	{   qf[i * 3]     = '?';
 	    qf[i * 3 + 1] = ',';
 	    qf[i * 3 + 2] = ' ';
 	}
@@ -509,15 +502,13 @@ public class Functions
 	
 	final char[] qt = new char[tags.length * 3];
 	for (int i = 0, n = tags.length; i < n; i++)
-	{
-	    qt[i * 3]     = '?';
+	{   qt[i * 3]     = '?';
 	    qt[i * 3 + 1] = ',';
 	    qt[i * 3 + 2] = ' ';
 	}
 	final char[] qf = new char[files.length * 3];
 	for (int i = 0, n = files.length; i < n; i++)
-	{
-	    qf[i * 3]     = '?';
+	{   qf[i * 3]     = '?';
 	    qf[i * 3 + 1] = ',';
 	    qf[i * 3 + 2] = ' ';
 	}
@@ -573,16 +564,14 @@ public class Functions
 	
 	final char[] qt = new char[tags.length * 3];
 	for (int i = 0, n = tags.length; i < n; i++)
-	{
-	    qt[i * 3]     = '?';
+	{   qt[i * 3]     = '?';
 	    qt[i * 3 + 1] = ',';
 	    qt[i * 3 + 2] = ' ';
 	    params[ptr++] = tags[i];
 	}
 	final char[] qf = new char[files.length * 3];
 	for (int i = 0, n = files.length; i < n; i++)
-	{
-	    qf[i * 3]     = '?';
+	{   qf[i * 3]     = '?';
 	    qf[i * 3 + 1] = ',';
 	    qf[i * 3 + 2] = ' ';
 	    params[ptr++] = files[i];

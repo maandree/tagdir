@@ -128,8 +128,7 @@ public class Actions
 	final String[][] pairs = Functions.ls(fetchPassword(), getDirPath());
 	String last = null;
 	for (final String[] pair : pairs)
-	{
-	    final String file = pair[0];
+	{   final String file = pair[0];
 	    final String tag = pair[1];
 	    
 	    if ((last == null) || (last.equals(file) == false))
@@ -186,8 +185,7 @@ public class Actions
 	final String[][] pairs = Functions.tags(fetchPassword(), getDirPath(), files);
 	String last = null;
 	for (final String[] pair : pairs)
-	{
-	    final String file = pair[0];
+	{   final String file = pair[0];
 	    final String tag = pair[1];
 	    
 	    if ((last == null) || (last.equals(file) == false))
@@ -220,8 +218,7 @@ public class Actions
 	{
 	    System.out.println("Removing '" + tag.replace("'", "'\\''") + "'");
 	    try
-	    {
-		final boolean c = (new File("./" + file)).exists();
+	    {	final boolean c = (new File("./" + file)).exists();
 		final boolean a = (new File("./.tagdir/" + file)).exists();
 		if (c)  (new File("./" + file)).delete();
 		if (a)  (new File("./.tagdir/" + file)).delete();
@@ -229,8 +226,7 @@ public class Actions
 		    System.out.println("No such file");
 	    }
 	    catch (final Throwable err)
-	    {
-		System.out.println(err.toString());
+	    {	System.out.println(err.toString());
 	    }
 	}
     }
@@ -248,15 +244,13 @@ public class Actions
 	Functions.untag(fetchPassword(), getDirPath(), files);
 	for (final String file : files)
 	    try
-	    {
-		final boolean c = (new File("./" + file)).exists();
+	    {	final boolean c = (new File("./" + file)).exists();
 		final boolean a = (new File("./.tagdir/" + file)).exists();
 		
 		if (c && a)
 		    (new File("./.tagdir/" + file)).delete();
 		else if (c)
-		{
-		    // Do nothing
+		{   // Do nothing
 		}
 		else if (a)
 		    Files.move(Paths.get("./.tagdir/" + file), Paths.get("./" + file), StandardCopyOptions.ATOMIC_MOVE);
@@ -264,8 +258,7 @@ public class Actions
 		    System.out.println("No such file");
 	    }
 	    catch (final Throwable err)
-	    {
-		System.out.println(err.toString());
+	    {	System.out.println(err.toString());
 	    }
     }
     
@@ -290,8 +283,7 @@ public class Actions
 	else if (!cs && !as)
 	    System.out.println("No such file");
 	else
-	{
-	    Functions.mv(fetchPassword(), getDirPath(), src, dest);
+	{   Functions.mv(fetchPassword(), getDirPath(), src, dest);
 	    if (cs)
 		Files.move(Paths.get("./" + src), Paths.get("./" + dest), StandardCopyOptions.ATOMIC_MOVE);
 	    if (as)
@@ -318,8 +310,7 @@ public class Actions
 		    (new File("./" + file)).delete();
 	for (final String file : files)
 	    if ((new File("./.tagdir/" + file)).exists())
-	    {
-		System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
+	    {   System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
 	        return;
 	    }
 	for (final String file : files)
@@ -342,8 +333,7 @@ public class Actions
 	final String[] files = Functions.tagFilter(fetchPassword(), getDirPath(), as, ns, ms);
 	for (final String file : files)
 	    if ((new File("./.tagdir/" + file)).exists())
-	    {
-		System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
+	    {	System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
 	        return;
 	    }
 	for (final String file : files)
@@ -366,8 +356,7 @@ public class Actions
 	final String[] files = Functions.tagFilter(fetchPassword(), getDirPath(), as, ns, ms);
 	for (final String file : files)
 	    if ((new File("./.tagdir/" + file)).exists())
-	    {
-		System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
+	    {	System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
 	        return;
 	    }
 	for (final String file : files)
@@ -388,13 +377,11 @@ public class Actions
 	int index = -1;
 	for (int i = 0, n = params.length(); i < n; i++)
 	    if ((params[i] == '=') || (params[i] == '+') || (params[i] == '-'))
-	    {
-		index = i;
+	    {	index = i;
 		break;
 	    }
 	if ((index < 1) || (index == params.length - 1))
-	{
-	    System.out.println("Syntax error");
+	{   System.out.println("Syntax error");
 	    return;
 	}
         final String[] files = new String[index];
@@ -403,23 +390,19 @@ public class Actions
 	System.arraycopy(params, index + 1, tags, 0, tags.length);
 	boolean stop = false;
 	for (final String file : files)
-	{
-	    final boolean c = (new File("./" + file)).exists();
+	{   final boolean c = (new File("./" + file)).exists();
 	    final boolean a = (new File("./.tagdir/" + file)).exists();
 	    if (!c && !a)
-	    {
-		System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist");
+	    {   System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist");
 		break;
 	    }
 	}
 	if (stop)
-	{
-	    System.out.println("Aborting");
+	{   System.out.println("Aborting");
 	    return;
 	}
 	for (final String file : files)
-	{
-	    final boolean a = (new File("./.tagdir/" + file)).exists();
+	{   final boolean a = (new File("./.tagdir/" + file)).exists();
 	    if (!a)
 		hardlink("./" + file, "./.tagdir/" + file);
 	}
