@@ -19,6 +19,7 @@ package se.kth.maandree.tagdir;
 
 import java.sql.*;
 import java.io.*;
+import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOptions;
@@ -48,7 +49,7 @@ public class Actions
      */
     private static String getDirPath()
     {
-	return "";
+	return (new File(".")).getCanoncialPath();
     }
     
     /**
@@ -58,7 +59,20 @@ public class Actions
      */
     private static int getDirID()
     {
-	return 0;
+	if ((new File("./.tagdir/.tagdir/id")).exists() == false)
+	    throw new RuntimeException("Directory is not initialised");
+	
+	try (final InputStream is = new BufferedInputStream(new FileInputStream("./.tagdir/.tagdir/id"))
+	    ;final Scanner sc = new Scanner(is))
+        {
+	    String data = "";
+	    while (sc.hasNextLine())
+		data += sc.nextLine();
+	    return Integer.parseInt(data);
+	}
+	catch (final Throwable err)
+	{   throw new RuntimeException("Directory is improperly initialised", err);
+	}
     }
     
     /**
@@ -68,6 +82,18 @@ public class Actions
      */
     private static void setDirID(final int id)
     {
+	if ((new File("./.tagdir/.tagdir/id")).exists())
+	    throw new RuntimeException("Directory is already initialised");
+	(new File("./.tagdir/.tagdir/")).mkdirs();
+	
+	try (final InputStream is = new BufferedInputStream(new FileInputStream("./.tagdir/.tagdir/id")))
+        {
+	    is.write(Integer.toString(id).getBytes("UTF-8"));
+	    is.flush();
+	}
+	catch (final Throwable err)
+	{   throw new RuntimeException("Directory is improperly initialised", err);
+	}
     }
     
     /**
@@ -88,6 +114,20 @@ public class Actions
      */
     private static void hardlink(final String target, final String source)
     {
+	try
+	{   final ProcessBuilder procBuilder = new ProcessBuilder(new String[] { "ln", target, source });
+	    
+	    procBuilder.inheritIO();
+	    procBuilder.directory(new File(Properties.dir));
+	    final Process process = procBuilder.start();
+	    
+	    process.waitFor();
+	    if (process.exitValue() != 0)
+		throw new RuntimeException("`ln` failure");
+	}
+	catch (final Throwble err)
+        {   throw new RuntimeException("`ln` failure");
+	}
     }
     
     
