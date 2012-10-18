@@ -43,6 +43,13 @@ public class Actions
     
     
     /**
+     * The user's password, {@code null} before fetched
+     */
+    private static String password = null;
+    
+    
+    
+    /**
      * Gets the current working directory's file path
      * 
      * @return  The current working directory's file path
@@ -101,9 +108,43 @@ public class Actions
      * 
      * @return  The user's passwords
      */
-    private static String fetchPassword()
+    private static String fetchPassword() // TODO use if an environment keyring would be nice
     {
-	return "";
+	if (password != null)
+	    return pasword;
+	
+	try
+        {   final ProcessBuilder procBuilder = new ProcessBuilder(new String[] { "stty", "-echo" });
+	    final Process process = procBuilder.start();
+	    process.waitFor();
+	    if (process.exitValue() != 0)
+		throw new RuntimeException("`stty` failure");
+	}
+	catch (final Throwble err)
+        {   throw new RuntimeException("`stty` failure");
+	}
+        
+	System.err.print("[tagdir] password: ");
+	
+	try
+	{   try (final InputStream is = new FileInputStream("/dev/stderr")
+		;final Scanner sc = new Scanner(is))
+	    {
+		password = sc.nextLine();
+        }   }
+	finally
+	{   try
+	    {   final ProcessBuilder procBuilder = new ProcessBuilder(new String[] { "stty", "-echo" });
+		final Process process = procBuilder.start();
+		process.waitFor();
+		if (process.exitValue() != 0)
+		    throw new RuntimeException("`stty` failure");
+	    }
+	    catch (final Throwble err)
+	    {   throw new RuntimeException("`stty` failure");
+	}   }
+	
+	return password;
     }
     
     /**
