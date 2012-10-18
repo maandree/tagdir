@@ -165,7 +165,7 @@ public class Actions
      */
     public static void ls() throws SQLException
     {
-	final String[][] pairs = Functions.ls(fetchPassword(), getDirPath());
+	final String[][] pairs = Functions.ls(fetchPassword(), getDirID());
 	String last = null;
 	for (final String[] pair : pairs)
 	{   final String file = pair[0];
@@ -194,7 +194,7 @@ public class Actions
      */
     public static void all() throws SQLException
     {
-	final String[] files = Functions.ls(fetchPassword(), getDirPath());
+	final String[] files = Functions.ls(fetchPassword(), getDirID());
 	for (final String file : files)
 	    System.out.println("'" + file.replace("'", "'\\''") + "'");
     }
@@ -207,7 +207,7 @@ public class Actions
      */
     public static void tags() throws SQLException
     {
-	final String[] tags = Functions.tags(fetchPassword(), getDirPath());
+	final String[] tags = Functions.tags(fetchPassword(), getDirID());
 	for (final String tag : tags)
 	    System.out.println("'" + tag.replace("'", "'\\''") + "'");
     }
@@ -222,7 +222,7 @@ public class Actions
      */
     public static void tags(final String[] files) throws SQLException
     {
-	final String[][] pairs = Functions.tags(fetchPassword(), getDirPath(), files);
+	final String[][] pairs = Functions.tags(fetchPassword(), getDirID(), files);
 	String last = null;
 	for (final String[] pair : pairs)
 	{   final String file = pair[0];
@@ -253,7 +253,7 @@ public class Actions
      */
     public static void rm(final String[] files) throws SQLException
     {
-	final String[] files = Functions.rm(fetchPassword(), getDirPath(), files);
+	final String[] files = Functions.rm(fetchPassword(), getDirID(), files);
 	for (final String file : files)
 	{
 	    System.out.println("Removing '" + tag.replace("'", "'\\''") + "'");
@@ -281,7 +281,7 @@ public class Actions
      */
     public static void untag(final String[] files) throws SQLException
     {
-	Functions.untag(fetchPassword(), getDirPath(), files);
+	Functions.untag(fetchPassword(), getDirID(), files);
 	for (final String file : files)
 	    try
 	    {	final boolean c = (new File("./" + file)).exists();
@@ -323,7 +323,7 @@ public class Actions
 	else if (!cs && !as)
 	    System.out.println("No such file");
 	else
-	{   Functions.mv(fetchPassword(), getDirPath(), src, dest);
+	{   Functions.mv(fetchPassword(), getDirID(), src, dest);
 	    if (cs)
 		Files.move(Paths.get("./" + src), Paths.get("./" + dest), StandardCopyOptions.ATOMIC_MOVE);
 	    if (as)
@@ -343,7 +343,7 @@ public class Actions
      */
     public static void show(final String[] as, final String[] ns, final String[] ms) throws SQLException
     {
-	final String[] files = Functions.tagFilter(fetchPassword(), getDirPath(), as, ns, ms);
+	final String[] files = Functions.tagFilter(fetchPassword(), getDirID(), as, ns, ms);
 	for (final String file : (new File("./")).list())
 	    if ((new File("./" + file)).isDirectory() == false)
 		if ((new File("./.tagdir/" + file)).exists())
@@ -370,7 +370,7 @@ public class Actions
      */
     public static void also(final String[] as, final String[] ns, final String[] ms) throws SQLException
     {
-	final String[] files = Functions.tagFilter(fetchPassword(), getDirPath(), as, ns, ms);
+	final String[] files = Functions.tagFilter(fetchPassword(), getDirID(), as, ns, ms);
 	for (final String file : files)
 	    if ((new File("./.tagdir/" + file)).exists())
 	    {	System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
@@ -393,7 +393,7 @@ public class Actions
      */
     public static void hide(final String[] as, final String[] ns, final String[] ms) throws SQLException
     {
-	final String[] files = Functions.tagFilter(fetchPassword(), getDirPath(), as, ns, ms);
+	final String[] files = Functions.tagFilter(fetchPassword(), getDirID(), as, ns, ms);
 	for (final String file : files)
 	    if ((new File("./.tagdir/" + file)).exists())
 	    {	System.out.println("File '" + file.replace("'", "'\\''") + "' does not exist is archive");
@@ -447,11 +447,11 @@ public class Actions
 		hardlink("./" + file, "./.tagdir/" + file);
 	}
 	if (params[i] == '=')
-	    Functions.tagSet(fetchPassword(), getDirPath(), files, tags);
+	    Functions.tagSet(fetchPassword(), getDirID(), files, tags);
 	else if (params[i] == '+')
-	    Functions.tagAdd(fetchPassword(), getDirPath(), files, tags);
+	    Functions.tagAdd(fetchPassword(), getDirID(), files, tags);
 	else if (params[i] == '-')
-	    Functions.tagRemove(fetchPassword(), getDirPath(), files, tags);
+	    Functions.tagRemove(fetchPassword(), getDirID(), files, tags);
     }
     
     
@@ -462,7 +462,7 @@ public class Actions
      */
     public static void export() throws SQLException
     {
-	String[][] data = Functions.export(fetchPassword(), getDirPath());
+	String[][] data = Functions.export(fetchPassword(), getDirID());
 	for (final String[] tuple : data)
 	    System.out.println("( file: '"  + tuple[0].replace("'", "'\\''")
 			       + "' dir: '" + tuple[1].replace("'", "'\\''")
@@ -478,6 +478,136 @@ public class Actions
      */
     public static void importSave() throws SQLException
     {
+        class Tuple { public String file = null, dir = null, tag = null; }
+        
+	ArrayDeque<Tuple> queue = new ArrayDeque<Tuple>();
+	
+	{   String tag = "", value = "";
+	    int state = 0;
+	    for (int d; (d = System.in.read()) != -1;)
+	    {
+		if (Character.isWhitespace(d))
+		    continue;
+		if (state == 0)
+		    if (d == '(')
+			state = 1;
+		    else
+			throw new RuntimeException("Invalid format");
+		else if (state == 1)
+		    if (d == ':')
+		    {   state = 2;
+			_file = null;
+			_dir = null;
+			_tag = null;
+		    }
+		    else if (d == ')')
+			if (tag.isEmpty())
+			{   state = 0;
+			    if ((_file == null) || (_dir == null) || (_tag == null))
+				throw new RuntimeException("Invalid format");
+			    Tuple tuple = new Tuple();
+			    tuple.file = _file;
+			    tuple.dir = _dir;
+			    tuple.tag = _tag;
+			    queue.offerLast(tuple);
+			}
+			else
+			    throw new RuntimeException("Invalid format");
+		    else
+			tag += d;
+		else if (state == 2)
+		    if (esc)
+		    {   esc = false;
+			value += d;
+		    }
+		    else if (d == '\'')
+			state = 3;
+		    else if (d == '\\')
+			esc = true;
+		    else if (d == ' ')
+			if (value.isEmpty());
+			else
+			{   if (tag.equals("file"))
+				if (_file == null)
+				    _file = value;
+				else
+				    throw new RuntimeException("Invalid format");
+			    else if (tag.equals("dir"))
+				if (_dir == null)
+				    _dir = value;
+				else
+				    throw new RuntimeException("Invalid format");
+			    else if (tag.equals("tag"))
+				if (_tag == null)
+				    _tag = value;
+				else
+				    throw new RuntimeException("Invalid format");
+			    else
+				throw new RuntimeException("Invalid format");
+			    value = "";
+			    tag = "";
+			    state = 1;
+			}
+		    else
+			value = d;
+		else
+		    if (d == '\'')
+			state = 2;
+		    else
+			value += d;
+	}   }
+	
+	final HashMap<String, HashMap<String, ArrayDeque<String>>> data = new HashMap<>();
+	
+        for (Tuple tuple; (tuple = queue.pollFirst()) != null;)
+	{   String file = tuple.file, dir = tuple.dir, tag = tuple.tag;
+	    
+	    if (data.get(dir) == null)
+		data.put(dir, new HashMap<String, ArrayDeque<String>>);
+	    final HashMap<String, ArrayDeque<String>> files = data.get(dir);
+	    if (files.get(file) == null)
+		files.put(file, new ArrayDeque<String>);
+	    final ArrayDeque<String> tags = files.get(file);
+	    tags.offerLast(tag);
+	}
+        
+	for (final String dir : data.keySet())
+        {
+	    if (new File(dir + "/.tagdir/.tagdir/id").exists() == false)
+	    {   System.out.println("Directory " + dir + " is not initialised, skipping to next directory");
+		continue;
+	    }
+	    int id = 0;
+	    try (final InputStream is = new BufferedInputStream(new FileInputStream(dir + "/.tagdir/.tagdir/id"))
+		;final Scanner sc = new Scanner(is))
+	    {
+		String data = "";
+		while (sc.hasNextLine())
+		    data += sc.nextLine();
+	        id = Integer.parseInt(data);
+	    }
+	    catch (final Throwable err)
+	    {   System.out.println("Directory " + dir + " is improperly initialised, skipping to next directory");
+		continue;
+	    }
+	    final HashMap<String, ArrayDeque<String>> files = data.get(dir);
+	    for (final String file : files.keySet())
+	    {
+		if ((new File(dir + "/" + file)).exists() == false)
+		    if ((new File(dir + "/.tagdir/" + file)).exists() == false)
+		    {   System.out.println("File " + file + " in " + dir + " does not exist, skipping to next file");
+			continue;
+		    }
+		if ((new File(dir + "/.tagdir/" + file)).exists() == false)
+		{   hardlink(dir + "/" + file, dir + "/.tagdir/" + file);
+		}
+		final String[] tags = new String[files.get(file).size()];
+		int ptr = 0;
+		for (final String tag : files.get(file))
+		    tags[ptr++] = tag;
+		Functions.tagAdd(fetchPassword(), id, new String[] { file }, tags);
+	    }
+	}
     }
     
 }
