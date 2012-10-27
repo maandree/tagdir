@@ -65,7 +65,8 @@ public class Functions
 	final String COMMAND_0 = "CREATE TABLE tagdir__dir ("
 	                       + "    dir  SERIAL,"
 	                       + "    name TEXT,"
-	                       + "    PRIMARY KEY (dir)"
+	                       + "    PRIMARY KEY (dir),"
+	                       + "    UNIQUE      (name)"
 	                       + ");";
 	
 	final String COMMAND_1 = "CREATE TABLE tagdir__file ("
@@ -73,13 +74,16 @@ public class Functions
 	                       + "    dir  INTEGER NOT NULL,"
 	                       + "    name TEXT,"
 	                       + "    PRIMARY KEY (file, dir),"
+	                       + "    UNIQUE      (dir, name),"
+	                       + "    UNIQUE      (file),"
 	                       + "    FOREIGN KEY (dir) REFERENCES tagdir__dir(dir)"
 	                       + ");";
 	
 	final String COMMAND_2 = "CREATE TABLE tagdir__tag ("
-	                       + "    tag SERIAL NOT NULL,"
+	                       + "    tag  SERIAL NOT NULL,"
 	                       + "    name TEXT,"
-	                       + "    PRIMARY KEY (tag)"
+	                       + "    PRIMARY KEY (tag),"
+	                       + "    UNIQUE       (name)"
 	                       + ");";
 	
 	final String COMMAND_3 = "CREATE TABLE tagdir__table ("
@@ -87,9 +91,8 @@ public class Functions
 	                       + "    dir  INTEGER NOT NULL,"
 	                       + "    tag  INTEGER NOT NULL,"
 	                       + "    PRIMARY KEY (file, dir, tag),"
-	                       + "    FOREIGN KEY (file) REFERENCES tagdir__file(file),"
-	                       + "    FOREIGN KEY (dir)  REFERENCES tagdir__dir(dir),"
-	                       + "    FOREIGN KEY (tag ) REFERENCES tagdir__tag(tag)"
+	                       + "    FOREIGN KEY (file, dir) REFERENCES tagdir__file(file, dir),"
+	                       + "    FOREIGN KEY (tag)       REFERENCES tagdir__tag(tag)"
 	                       + ");";
 	
 	Database.update(COMMAND_0, password);
